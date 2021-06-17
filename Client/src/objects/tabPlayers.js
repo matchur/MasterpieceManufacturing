@@ -31,6 +31,8 @@ export default class TabInfo
         //funções existentes dentro da classe 
         this.render = (scene,x,y,ID) =>
         { 
+
+            var self;
             this.playersLenght = 0;
             this.idOwner = ID;
             this.scene = scene;
@@ -43,18 +45,13 @@ export default class TabInfo
             this.playersAvatar = [];
             this.playersName = [];
         }
-        this.playerOn = (Pid,Pnome,Pavatar) =>
+        this.playerOn = (Pid,Pnome,Pavatar,Prole) =>
         {
-            var auxPran,auxPic,auxTxt;
-
-
-            
+            var txt_role,txt_name,spr_box,auxPran,auxTam,auxPic;
             var self = this;
 
-
-
-
             var auxTam= this.playersLenght;
+            //esse if vai aqui dentro pq fora da função está bugando???
             if(Pid != this.idOwner)
             {
                 this.playersId.push(Pid);
@@ -63,14 +60,15 @@ export default class TabInfo
 
                 auxPran = this.scene.add.sprite(1600+(60*auxTam),100,'prancheta').setScale(1,1).setInteractive()
                 auxPran.on('pointerover',function(){
-                    //
-                    auxTxt = this.scene.add.text(1600,400, self.idOwner, self.style);    
                 
+                    spr_box  = this.scene.add.sprite(1600+(60*auxTam),170,'playerInfoBox').setScale(1,1).setInteractive();
+                    txt_name = this.scene.add.text(1540+(60*auxTam),145,Pnome, { font: "12px Arial", fill: "#000000",align: "center",wordWrap: true});    
+                    txt_role = this.scene.add.text(1558+(60*auxTam),165,Prole == 0?"Gerente":"Projetista", { font: "18px Arial", fill: "#000000",align: "center",wordWrap: true});
                 });
-                auxPran.on('pointerout',function(){
-                    //
-                    auxTxt.destroy();
-                
+                auxPran.on('pointerout',function(){ 
+                    txt_name.destroy();
+                    spr_box.destroy();
+                    txt_role.destroy();
                 });
                 
                 this.spr_prancheta.push(auxPran);
@@ -81,11 +79,11 @@ export default class TabInfo
         }   
 
 
-
+        //função bugada
         this.playerOff = (playerId) =>
         {
+            var self = this;
             var auxPran,auxPic;
-            var auxArray,a;
             var iPlayer = this.playersId.findIndex(element => element == playerId);
 
                 console.log(iPlayer);
@@ -106,8 +104,6 @@ export default class TabInfo
                 this.playersAvatar.splice(iPlayer);
                 this.playersLenght--;
     
-    
-    
                 //printar tudo novamente, utilizar função playerOn
                 for(var i = 0;i<this.playersLenght;i++)
                 {
@@ -115,9 +111,10 @@ export default class TabInfo
                     
                     this.spr_prancheta.push(auxPran);              
                     
-                    auxPran.on('pointerover',function(){
+                    auxPran.on('pointerover',function()
+                    {
                     
-                        this.scene.add.text(1600+(60*i),80, idOwner, this.style);    
+                        self.scene.add.text(1600+(60*i),80, idOwner, this.style);    
                     
                     });  
            

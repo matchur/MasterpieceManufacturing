@@ -3,10 +3,7 @@ export default class CardPeca
 {
     constructor(scene,iO)
     {        
- 
-        let clickFlag;//flag
-        
-    
+        let clickFlag;//flag  
         var iOrdem;
         var index = iO;
         let imageWidth = 480;
@@ -124,64 +121,6 @@ export default class CardPeca
                 }
             });
             
-            //interrupções
-
-            /*objKeyF.on('down', function() 
-            {
-                if(!flipFlag && clickFlag)
-                {
-                    flipFlag = true;
-                    const timeline = scene.tweens.createTimeline({
-                        onComplete: () =>
-                        {
-                            timeline.destroy()
-                        }
-                    });
-            
-                    timeline.add(
-                        {
-                            targets: card,
-                            scale: scale+0.05,
-                            duration: timeFlip
-                        })
-            
-                    timeline.add(
-                        {
-                            targets: card,
-                            scaleX: 0,
-                            duration:timeFlip,
-                            delay: 200,
-                            onComplete: () => 
-                            {
-                                if(card.texture.key == 'card_frentePeca')
-                                card.setTexture(sprite_card);
-                                else
-                                card.setTexture('card_frentePeca');
-                            }
-                        })
-            
-                    timeline.add({
-                        targets:card,
-                        scaleX: scale+0.05,
-                        duration: timeFlip
-                    })
-            
-                    timeline.add(
-                        {
-                            targets: card,
-                            scale:scale,
-                            duration: timeFlip,
-                            onComplete: () => 
-                            {
-                                flipFlag = false;
-                            }
-                        }
-                    )   
-                    timeline.play();                 
-                }
-
-            }
-            );*/               
             
             card.on('drag',function(gameObject,dragX,dragY)
             {

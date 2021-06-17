@@ -24,7 +24,7 @@ export default class CardProc
             //FLIP
             var flipFlag = false;
             var timeFlip = 150;
-            var scale = 0.5;
+            var scale = 0.25;
 
             //Click
             var clickFlag;

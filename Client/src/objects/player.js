@@ -1,7 +1,7 @@
 import Phaser from "phaser";
-import TabPhoto from '../objects/tabPhoto';
 import TabInfo from '../objects/tabInfo';
 import TabPlayers from '../objects/tabPlayers';
+
 export default class Player
 {
     constructor(scene)
@@ -23,87 +23,96 @@ export default class Player
         var curtain;    
         var widthScene,heightScene;
         var text;
-        var style = { font: "28px Arial", fill: "#ffffff",align: "center",wordWrap: true};
+        var style = { font: "28px Arial", fill: "#ffffff",align: "center",wordWrap: true, maxwidth: 13};
 
         //funções existentes dentro da classe 
-        this.render = (scene,io,name) =>
+        this.render = (scene,io) =>
         { 
+            var self = this;
 
-            var aux;
-            var idAux;
             this.socket = io('http://localhost:3000');
         
+            //await text
+            var spr_await;
+            var txt_await;
+            var txt_infoAwait;
+
+
+
             var width = scene.game.config.width;
             var height = scene.game.config.height;
             this.widthScene=width;
             this.heightScene=height;
             this.tabs = [];
-            this.scene = scene; 
-            this.name = name;
-            this.style = { font: "18px Arial", fill: "#ffffff",align: "left",wordWrap: true};
+            this.scene = scene;
+            this.style = { font: "17px Arial", fill: "#ffffff",align: "left",wordWrap: true};
             this.spr_tableInfo = scene.add.sprite(175,100,'playerInfoTable').setScale(1,1).setInteractive();
-            this.txt_tableInfo = this.scene.add.text(163, 50, "Nome: "+name, this.style);
-            this.txt_roleInfo = this.scene.add.text(188, 70,this.disc == 'p'?"Gerente":"Projetista", this.style);
+            
+            
 
-            this.btnGerente = scene.add.sprite(225,140,'btnGerente').setScale(1,1).setInteractive();
-            this.btnGerente = scene.add.sprite(225,140,'btnGerente').setScale(1,1).setInteractive();
-            for(var i = 0;i<7;i++)  
-            {
-                var tab = new TabPhoto;
-                tab.render(scene,40,44+(18*i),i);
-                this.tabs.push(tab);
-            }
+            //this.btnGerente = scene.add.sprite(180,135,'btnGerente').setScale(0.8,0.8).setInteractive();
+
+    
+
 
             //TabInfo -- 
             this.tabInfo = new TabInfo();
             this.tabInfo.render(scene,175,213);
 
             //interrupções de socket
-            this.socket.on('newPlayer', function(playerId,playerName,playerAvatar)
+            this.socket.on('newPlayer', function(playerId,playerName,playerAvatar,index)
             {
-                this.disc = 'p';//projetistas
-                aux.playerOn(playerId,playerName,playerAvatar);                         
+                console.log(playerName+"-"+index);
+                self.tabPlayers.playerOn(playerId,playerName,playerAvatar,index);                         
             });
 
-            this.socket.on('returnPlayers', function(playersIdArray,playersNameArray,playersAvatarArray)
+            this.socket.on('returnPlayers', function(playersIdArray,playersNameArray,playersAvatarArray,playersRoleArray)
             {
                 for(var i=0;i<7;i++)
                 {
                     if(playersIdArray[i] == null)
                     break;
-
-                    aux.playerOn(playersIdArray[i],playersNameArray[i],playersAvatarArray[i]);  
-                
-                }
-                                       
+                    console.log(playersNameArray[i]+"-"+playersRoleArray[i]);
+                    self.tabPlayers.playerOn(playersIdArray[i],playersNameArray[i],playersAvatarArray[i],playersRoleArray[i]);                  
+                }                                       
             });
             
             this.socket.on('attPlayer', function(playerId,playerName,playerAvatar)
             {
-                aux.playerOn(playerId,playerName,playerAvatar);                         
+                self.tabPlayers.playerOn(playerId,playerName,playerAvatar);                         
             });
 
             this.socket.on('playerDisconnect', function(playersId)
             {
-                aux.playerOff(playersId);                        
+                self.tabPlayers.playerOff(playersId);                        
             });
 
             this.socket.on('connect',function()
             {
                 console.log('Connected!!');
             }); 
-            this.socket.on('myID',function(id)
+            this.socket.on('myID',function(id,nome,avatar,role)
             {
-                idAux = id;
-                console.log("ID:"+idAux);
-                //TabPlayers -- 
-                this.tabPlayers = new TabPlayers();
-                this.tabPlayers.render(scene,1720,100,id);
-                aux = this.tabPlayers;               
+                scene.add.sprite(80,100,"avatar"+(avatar)).setScale(1,1).setInteractive();     
+                console.log("ROLE:"+role);
+                self.disc = role == 0?"g":"p";
+                self.scene.data.set('playerRole',self.disc);
+                self.scene.data.set('dealCardsFlag',true);
+                self.id = id;
+                console.log("ID:"+self.id);
+                self.name = nome;
+                self.txt_tableInfo = self.scene.add.text(140, 35, "Nome: "+nome, self.style);
+                self.txt_roleInfo = self.scene.add.text(140, 55,self.disc == 'p'?"Projetista":"Gerente", self.style);
+                console.log("--");
+                console.log(this.disc);
+                //TabPlayers--
+                self.tabPlayers = new TabPlayers();
+                self.tabPlayers.render(scene,1720,100,id);
             });              
             //---------------------------------------
 
             this.socket.emit('getPlayers');
+            
             return this;
         }
 
@@ -133,6 +142,24 @@ export default class Player
             this.text = this.scene.add.text(this.widthScene/2, this.heightScene/2, "Tirando férias keke", this.style);
             console.log(this.widthScene);
 
+        }
+
+        this.awaitManagerOn = () =>
+        {
+            this.spr_await = this.scene.add.sprite(this.widthScene/2,350,'tabWait').setScale(1,1).setInteractive();
+            this.style = { font: "40px Arial", fill: "#b81c1c",align: "center",wordWrap: true};
+            this.txt_await = this.scene.add.text(875, 300, "ESPERE", this.style);
+            this.style = { font: "28px Arial", fill: "#000000",align: "center",wordWrap: true};
+            this.txt_infoAwait = this.scene.add.text(745, 350, "Gerente escolhendo o card de peça", this.style);
+            this.style = { font: "28px Arial", fill: "#ffffff",align: "center",wordWrap: true};
+        }
+
+        
+        this.awaitManagerOff = () =>
+        {
+            this.spr_await.destroy();
+            this.txt_await.destroy();
+            this.txt_infoAwait.destroy();
         }
 
         this.blindPlayer = () =>

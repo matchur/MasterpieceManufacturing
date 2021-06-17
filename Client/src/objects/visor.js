@@ -33,6 +33,11 @@ export default class Visor
             text = scene.add.text(board.x-turnX[turn], board.y-10, turnString[turn], style);
             return board;
         }
+
+        this.resetTurns = () =>
+        {
+            turn = 0;
+        }
             
     }
 }
