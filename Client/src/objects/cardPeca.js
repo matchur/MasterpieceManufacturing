@@ -1,21 +1,30 @@
 import Phaser from "phaser";
 export default class CardPeca 
 {
-    constructor(scene,iO)
+    constructor(scene)
     {        
         let clickFlag;//flag  
         var iOrdem;
-        var index = iO;
+        var index;
         let imageWidth = 480;
         let imageHeight = 720;
 
+       
+        //Choose
+        var isChoose;
+        //Status
+        var inDeck;
+        this.setIndex = (i) =>
+        {
+            this.index = i;
+        }
 
         //funções existentes dentro da classe 
         this.render = (x,y,sprite_card,scene,sprite_shortcut) =>
         {         
             //estaticos
             const ox = x,oy = y;
-            
+            var self = this;
             iOrdem = 0;
 
             //variaveis
@@ -23,14 +32,11 @@ export default class CardPeca
             var flipFlag = false;
             var timeFlip = 150;
             var scale = 0.5;
-
-            //Click
             var clickFlag;
-            //Choose
-            var chooseFlag;
+           
 
             //Status
-            var inDeck = true;
+            this.inDeck = true;
 
             let shortcut;
             let card = scene.add.sprite(x,y,sprite_card).setScale(scale,scale).setInteractive();
@@ -47,13 +53,13 @@ export default class CardPeca
             
              
             cursorFlag = false;
-            chooseFlag = false;
+            this.isChoose = false;
             clickFlag = false;
 
             scene.input.setDraggable(card);
             objKeyE.on('down', function() 
             {
-                if(scene.data.get('cardPecaTable')>3 && !cursorFlag && clickFlag && !inDeck)
+                if(scene.data.get('cardPecaTable')>3 && !cursorFlag && clickFlag && !this.inDeck)
                 {
                     const timeline = scene.tweens.createTimeline({
                         onComplete: () =>
@@ -69,6 +75,7 @@ export default class CardPeca
                             duration: 1,
                             onComplete: ()=>{
                                 cursorFlag = true;
+                                
                             }
                         });
 
@@ -109,7 +116,8 @@ export default class CardPeca
                             duration: 1,
                             onComplete: ()=>
                             {
-                                       scene.data.set('cursorHandFlag',true);
+                                       scene.data.set('cursorHandFlag',true);    
+                                       self.isChoose = true;                                  
                              
                             }
                         });
@@ -124,7 +132,7 @@ export default class CardPeca
             
             card.on('drag',function(gameObject,dragX,dragY)
             {
-                    if(inDeck)
+                    if(self.inDeck)
                     {
                         text.destroy();
                         shortcut.destroy();
@@ -161,7 +169,7 @@ export default class CardPeca
                 }
                 
                 clickFlag = true;
-                if(inDeck && clickFlag)
+                if(self.inDeck && clickFlag)
                 {
                     style = { font: "13px Arial", fill: "#000000",align: "center",
                     wordWrap: true}
@@ -171,7 +179,7 @@ export default class CardPeca
 
 
                 }
-                if(!inDeck && clickFlag)
+                if(!self.inDeck && clickFlag)
                 {                  
                     if(scene.data.get('cardPecaTable')>3)
                     {
@@ -195,14 +203,7 @@ export default class CardPeca
                   text.destroy();
             });
 
- /*
-            card.on('pointerdown', function () 
-            {       
-                if(scene.data.get('cardPecaTable') > 3)
-                {
-                    
-                }
-            });*/
+
 
             card.on('dragend',function(gameObject,dragX,dragY)
             {  
@@ -230,12 +231,6 @@ export default class CardPeca
                         duration: 300,
                     })
 
-
-
-
-
-
-
                 if(scene.input.mousePointer.x < 390 || 
                     scene.input.mousePointer.y < 90 ||
                   scene.input.mousePointer.x > 1500 || 
@@ -244,7 +239,7 @@ export default class CardPeca
                 {
                     
                     //se a carta ta vindo da mesa, volta valor na mesa
-                    if(!inDeck)
+                    if(!self.inDeck)
                     {
                         scene.data.set('cardPecaTable',scene.data.get('cardPecaTable')-1);
                         scene.data.set('cardPecaDeck',scene.data.get('cardPecaDeck')+1);                     
@@ -253,7 +248,7 @@ export default class CardPeca
                     timeline.play(); 
 
                     iOrdem = 0;
-                    inDeck = true;
+                    self.inDeck = true;
                     card.x = ox;
                     card.y = oy;
                 }//fora da mesa
@@ -263,14 +258,14 @@ export default class CardPeca
                    scene.input.mousePointer.y < 600 )
                 {
                     //se a carta ta vindo da mesa, volta valor na mesa
-                    if(!inDeck)
+                    if(!self.inDeck)
                     {
                         scene.data.set('cardPecaTable',scene.data.get('cardPecaTable')-1);
                         scene.data.set('cardPecaDeck',scene.data.get('cardPecaDeck')+1);
                     }
                     timeline.play();
                     iOrdem = 0;
-                    inDeck = true;
+                    self.inDeck = true;
                     card.x = ox;
                     card.y = oy;
                 }//perto do baralho
@@ -289,25 +284,23 @@ export default class CardPeca
                         shortcut = scene.add.sprite(card.x,card.y-220,sprite_shortcut).setScale(0.75,0.75).setInteractive();
                         text =  scene.add.text(card.x-40,card.y-240, "Pressione E\npara escolher\nessa carta", style);
                         }   
-                        inDeck = false;
+                        self.inDeck = false;
                         
-                    }
-                    
-                    
+                    }   
                 }
-
-
-
-
-                 
             });
 
-
-            return this;         
             
-                    
-    
         }
+        
+
+        this.printObj = () =>
+        {
+            this.scene.add.sprite(x,y,sprite_card).setScale(this.scale,this.scale).setInteractive();
+        }
+
+
+        
     }
 
     

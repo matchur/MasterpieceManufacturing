@@ -3,6 +3,7 @@ import CardPeca from '../objects/cardPeca.js';
 import Table from '../objects/table.js';
 import Visor from '../objects/visor.js';
 import Player from '../objects/player.js';
+import ProcessSheet from '../objects/processSheet.js';
 import io from 'socket.io-client';
 
 //criação de uma scene, onde os objetos serão adcionados
@@ -41,6 +42,7 @@ export default class Game extends Phaser.Scene
         this.load.image('btnGerente','src/assets/gerenteBtn.png');
         this.load.image('tabWait','src/assets/waitTab.png');
         this.load.image('playerInfoBox','src/assets/playerInfoBox.png');
+        this.load.image('processSheet','src/assets/processSheet.png');
 
         //avatares
         this.load.image('avatar0','src/assets/Avatars/avatar0.png'); 
@@ -66,30 +68,33 @@ export default class Game extends Phaser.Scene
       this.data.set('tabPhotosFlag',-1);
       this.data.set('playerRole','X');
       this.data.set('dealCardsFlag',false);
+      
+      //cartas selecionadas  //// cartas escolhidas
+      this.cardsSelected = [];
+      this.cardChoose = null;
+
+
+
       const {width,height} = this.scale;
 
         //imagem de background
         this.add.image(0, 0, 'background').setOrigin(0);
       
         //set player socket function
-      this.player = new Player();
-      this.player.render(scene,io);
+        this.player = new Player();
+        this.player.render(scene,io);
 
         //colocar mesa
-        mesa = new Table(this);
-        mesa.render(948,352,'mesa',this);
+        this.mesa = new Table(this);
+        this.mesa.render(948,352,'mesa',this);
 
+        //processSheet
+        this.processSheet = new ProcessSheet();
+        this.processSheet.render(948,352,'processSheet',this);
 
         //colocar visor
         this.visor = new Visor(this);
         this.visor.render(945,35,'visor',this);
-
-
-        
-
-
-
-
     }
 
     shuffle(array){
@@ -115,15 +120,22 @@ export default class Game extends Phaser.Scene
 
     update() 
     {
-      //console.log(this.visor.turn);
-      ///let variable = this.visor.getTurn();
-      //console.log(variable);e
 
       if(this.data.get('cursorHandFlag'))
       {      
         this.visor.nextTurn();
         this.player.blindPlayer();
         this.data.set('cursorHandFlag',false);
+        for(var i=0;i<10;i++)
+          if(!this.cardsPeca[i].inDeck)
+          {
+              if(!this.cardsPeca[i].inDeck)
+                this.cardsSelected.push(this.cardsPeca[i].index);
+              if(this.cardsPeca[i].isChoose)
+                this.cardChoose = this.cardsPeca[i].index;
+          }
+
+        this.player.managerChooseCard(this.cardsSelected,this.cardChoose);
       }
 
 
@@ -132,8 +144,12 @@ export default class Game extends Phaser.Scene
       {
             //setBaralho de pecas
             for(var i = 0;i<10;i++)
-            this.cardsPeca[i] = new CardPeca(this,i);
-
+            {
+              this.cardsPeca[i] = new CardPeca(this);
+              this.cardsPeca[i].setIndex(i);
+            }
+            
+            this.shuffle(this.cardsPeca);
             for(var i = 0;i<10;i++)
             this.cardsPeca[i].render(1350,350,'cardPeca',this,'shortcut');
 

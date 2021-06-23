@@ -1,6 +1,8 @@
 import Phaser from "phaser";
 import TabInfo from '../objects/tabInfo';
 import TabPlayers from '../objects/tabPlayers';
+import ProcessSheet from '../objects/processSheet';
+
 
 export default class Player
 {
@@ -24,6 +26,11 @@ export default class Player
         var widthScene,heightScene;
         var text;
         var style = { font: "28px Arial", fill: "#ffffff",align: "center",wordWrap: true, maxwidth: 13};
+        //await text
+        var spr_await;
+        var txt_await;
+        var txt_infoAwait;
+
 
         //funções existentes dentro da classe 
         this.render = (scene,io) =>
@@ -32,11 +39,7 @@ export default class Player
 
             this.socket = io('http://localhost:3000');
         
-            //await text
-            var spr_await;
-            var txt_await;
-            var txt_infoAwait;
-
+           
 
 
             var width = scene.game.config.width;
@@ -76,6 +79,30 @@ export default class Player
                     self.tabPlayers.playerOn(playersIdArray[i],playersNameArray[i],playersAvatarArray[i],playersRoleArray[i]);                  
                 }                                       
             });
+
+            this.socket.on('startProcessTurn',function(cardsInTable,cardSelected)
+            {
+                if(self.disc == 'p')
+                {
+                    
+                    //avançar o tuno (visor)
+                    self.scene.visor.nextTurn();
+
+                    //tirar aviso da tela
+                    self.awaitManagerOff();
+
+                    //colocar na tela a folha de processos e cartas peça
+                    for(var i = 0;i<3;i++)
+                    {
+                        console.log(cardsInTable[i]);
+                    }
+                    
+                    //players podem soltar as cartas na mesa
+
+                    //ao colocar duas cartas na mesa ele confirma
+                }
+            });
+            
             
             this.socket.on('attPlayer', function(playerId,playerName,playerAvatar)
             {
@@ -116,6 +143,11 @@ export default class Player
             return this;
         }
 
+        this.managerChooseCard = (cardsInTable,cardSelected) =>
+        {
+            this.socket.emit('managerChooseCard',cardsInTable,cardSelected);
+        }
+
         this.setDisc = (disc) =>
         {
             this.disc = disc;            
@@ -140,8 +172,6 @@ export default class Player
            
             this.style = { font: "28px Arial", fill: "#ffffff",align: "center",wordWrap: true};
             this.text = this.scene.add.text(this.widthScene/2, this.heightScene/2, "Tirando férias keke", this.style);
-            console.log(this.widthScene);
-
         }
 
         this.awaitManagerOn = () =>
@@ -161,6 +191,8 @@ export default class Player
             this.txt_await.destroy();
             this.txt_infoAwait.destroy();
         }
+
+    
 
         this.blindPlayer = () =>
         {

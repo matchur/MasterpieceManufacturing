@@ -60,6 +60,8 @@ io.on('connection',function(socket)
 
   
 
+  
+
   //passou a vez de alguem ser gerente
   socket.on('nextManager', function () 
   {
@@ -69,13 +71,16 @@ io.on('connection',function(socket)
   });
 
 
-  
+  socket.on('managerChooseCard',function(cardsInTable,cardSelected)
+  {
+    io.emit('startProcessTurn',cardsInTable,cardSelected);
+  });
 
 
   //client pedindo os players, quando o jogador entra, ele n sabe quem já está na mesa
   socket.on('getPlayers', function () 
   {
-    this.emit('returnPlayers',playersIdArray,playersNameArray,playersAvatarArray,playersRoleArray); 
+    this.emit('returnPlayers',playersIdArray,playersNameArray,playersAvatarArray,playersRoleArray);
   });
 
   //quando um jogador, client, atualizar seus dados, esse trigger é acionado
