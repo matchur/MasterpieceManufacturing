@@ -8,12 +8,18 @@ export default class CardPeca
         var index;
         let imageWidth = 480;
         let imageHeight = 720;
+        let scenePeca;
+        let spr_card;
+        
 
        
         //Choose
         var isChoose;
         //Status
         var inDeck;
+
+
+
         this.setIndex = (i) =>
         {
             this.index = i;
@@ -22,6 +28,7 @@ export default class CardPeca
         //funções existentes dentro da classe 
         this.render = (x,y,sprite_card,scene,sprite_shortcut) =>
         {         
+            this.scenePeca = scene;
             //estaticos
             const ox = x,oy = y;
             var self = this;
@@ -40,7 +47,7 @@ export default class CardPeca
 
             let shortcut;
             let card = scene.add.sprite(x,y,sprite_card).setScale(scale,scale).setInteractive();
-            
+            this.spr_card = card;
             //handCursor
             let handCursor = scene.add.sprite(x,y-100,'handCursor1').setScale(0,1).setInteractive();
             let cursorFlag;
@@ -296,11 +303,73 @@ export default class CardPeca
 
         this.printObj = () =>
         {
-            this.scene.add.sprite(x,y,sprite_card).setScale(this.scale,this.scale).setInteractive();
+            this.scenePeca.add.sprite(x,y,sprite_card).setScale(this.scale,this.scale).setInteractive();
+        }
+
+        this.movCard = (newX,newY) =>
+        {
+            this.spr_card.x = newX;
+            this.spr_card.y = newY;
         }
 
 
+        this.piscaCarta = () =>
+        {
+            
+        }
         
+        this.flipFace = () =>
+        {
+            var scaleAprox = 0.5;
+            var scale = this.spr_card.scale;
+            var timeFlip = 150;
+            var card = this.spr_card;
+            var cardNumber = this.index;
+            const timeline = this.scenePeca.tweens.createTimeline({
+                onComplete: () =>
+                {
+                    timeline.destroy()
+                }
+            });
+    
+            timeline.add(
+                {
+                    targets: card,
+                    scale: scale+0.05,
+                    duration: timeFlip
+                })
+    
+            timeline.add(
+                {
+                    targets: card,
+                    scaleX: 0,
+                    duration:timeFlip,
+                    delay: 200,
+                    onComplete: () => 
+                    {
+                        if(card.texture.key == 'cardPeca')
+                        card.setTexture("peca"+cardNumber);
+                        else
+                        card.setTexture('cardPeca');
+                    }
+                })
+    
+            timeline.add({
+                targets:card,
+                scaleX: scale+0.05,
+                duration: timeFlip
+            })
+    
+            timeline.add(
+                {
+                    targets: card,
+                    scale:scale-0.35,
+                    duration: timeFlip,
+                  }
+            )   
+            timeline.play(); 
+        }
+
     }
 
     

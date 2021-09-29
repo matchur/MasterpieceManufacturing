@@ -21,8 +21,6 @@ export default class Game extends Phaser.Scene
         let i = 0;
         this.load.image('cardPeca','src/assets/cardPeca.png');
         this.load.image('cardProc','src/assets/cardProc.png');
-        this.load.image('card_frentePeca','src/assets/frentePeca.png');
-        this.load.image('card_frenteProc','src/assets/frenteProc.png');
         this.load.image('background','src/assets/background.png');
         this.load.image('mesa','src/assets/table.png');  
         this.load.image('shortcut','src/assets/shortcutBox.png');  
@@ -53,6 +51,29 @@ export default class Game extends Phaser.Scene
         this.load.image('avatar5','src/assets/Avatars/avatar5.png'); 
         this.load.image('avatar6','src/assets/Avatars/avatar6.png'); 
 
+        //frente pecas
+        this.load.image('peca0','src/assets/Pecas/1.png');
+        this.load.image('peca1','src/assets/Pecas/2.png');
+        this.load.image('peca2','src/assets/Pecas/3.png');
+        this.load.image('peca3','src/assets/Pecas/4.png');
+        this.load.image('peca4','src/assets/Pecas/5.png');
+        this.load.image('peca5','src/assets/Pecas/6.png');
+        this.load.image('peca6','src/assets/Pecas/7.png');
+        this.load.image('peca7','src/assets/Pecas/8.png');
+        this.load.image('peca8','src/assets/Pecas/9.png');
+        this.load.image('peca9','src/assets/Pecas/10.png');
+        this.load.image('peca10','src/assets/Pecas/11.png');
+        this.load.image('peca11','src/assets/Pecas/12.png');
+        this.load.image('peca12','src/assets/Pecas/13.png');
+        this.load.image('peca13','src/assets/Pecas/14.png');
+        this.load.image('peca14','src/assets/Pecas/15.png');
+        this.load.image('peca15','src/assets/Pecas/16.png');
+
+        
+        
+        //frente processos
+
+
 
     }
 
@@ -61,7 +82,13 @@ export default class Game extends Phaser.Scene
       let scene = this;
       this.cardsProc = [];
       this.cardsPeca = [];
+      this.playMat;
       let mesa;
+
+      this.data.set('choosenCardsFlag',false);
+      this.data.set('cardsInTable',null);
+      this.data.set('cardSelected',null);
+
       this.data.set('cardPecaTable',1);
       this.data.set('cardPecaDeck',10);
       this.data.set('cursorHandFlag',false);
@@ -90,7 +117,7 @@ export default class Game extends Phaser.Scene
 
         //processSheet
         this.processSheet = new ProcessSheet();
-        this.processSheet.render(948,352,'processSheet',this);
+        this.processSheet.render(948,352,this);
 
         //colocar visor
         this.visor = new Visor(this);
@@ -120,7 +147,22 @@ export default class Game extends Phaser.Scene
 
     update() 
     {
+      //----------TRIGGER-----------
+      if(this.data.get('choosenCardsFlag'))
+      {
+        for(var i = 0;i<3;i++)
+        {                      
+           this.cardsPeca[i] = new CardPeca(this);
+           this.cardsPeca[i].setIndex(this.data.get('cardsInTable')[i]);
+           this.cardsPeca[i].render(680+(i*260),230,'cardPeca',this,'shortcut');
+           this.cardsPeca[i].flipFace();
+          if(this.data.get('cardSelected') == this.data.get('cardsInTable')[i])
 
+        }
+        this.data.set('choosenCardsFlag',false);
+      }
+
+      //----------TRIGGER-----------
       if(this.data.get('cursorHandFlag'))
       {      
         this.visor.nextTurn();
@@ -139,7 +181,7 @@ export default class Game extends Phaser.Scene
       }
 
 
-
+      //----------TRIGGER-----------
       if(this.data.get('playerRole') == 'g' && this.data.get('dealCardsFlag'))
       {
             //setBaralho de pecas
@@ -156,7 +198,7 @@ export default class Game extends Phaser.Scene
             this.data.set('dealCardsFlag',false);
             
       }
-
+      //----------TRIGGER-----------
       if(this.data.get('playerRole') == 'p' && this.data.get('dealCardsFlag'))
       {
 

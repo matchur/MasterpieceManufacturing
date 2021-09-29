@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import TabInfo from '../objects/tabInfo';
 import TabPlayers from '../objects/tabPlayers';
 import ProcessSheet from '../objects/processSheet';
+import CardPeca from '../objects/cardPeca.js';
 
 
 export default class Player
@@ -82,7 +83,7 @@ export default class Player
 
             this.socket.on('startProcessTurn',function(cardsInTable,cardSelected)
             {
-                if(self.disc == 'p')
+                if(self.disc == 'p')//verifica se o jogador não é gerente
                 {
                     
                     //avançar o tuno (visor)
@@ -91,11 +92,15 @@ export default class Player
                     //tirar aviso da tela
                     self.awaitManagerOff();
 
-                    //colocar na tela a folha de processos e cartas peça
-                    for(var i = 0;i<3;i++)
-                    {
-                        console.log(cardsInTable[i]);
-                    }
+                    //colocar na tela a folha de processos
+                    scene.processSheet.processSheetOn();
+
+
+
+                    //passa para variavel global as casr e liga a flag de card peça
+                    scene.data.set('cardsInTable',cardsInTable);
+                    scene.data.set('cardSelected',cardSelected);
+                    scene.data.set('choosenCardsFlag',true);        
                     
                     //players podem soltar as cartas na mesa
 
