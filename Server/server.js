@@ -9,7 +9,12 @@ let playersNameArray = [];
 let playersAvatarArray = [];
 let playersRoleArray = [];
 
+let countSelectedProcCard; //contador de jogadores que ja deram confirmação das cartas
 let cardSelected;
+
+//arrays que guardam as cartas de processo dos jogadores
+let playersCardProcChoose1 = [];
+let playersCardProcChoose2 = [];
 
 // io.to(socket#id).emit('hey')
 
@@ -26,6 +31,7 @@ const io = require('socket.io')(http, {
 
 io.on('connection',function(socket)
 {
+  countSelectedProcCard = 0;
   var index = players.length;
   var nomes;
   players.push(socket);
@@ -75,6 +81,26 @@ io.on('connection',function(socket)
   {
     io.emit('startProcessTurn',cardsInTable,cardSelected);
   });
+
+  socket.on('projChooseCard',function(cardsChooseArray,idPlayer)
+  {
+    console.log("carta escolhida: "+cardsChooseArray[0]+" ID: "+idPlayer);
+    //contador de jogador que escolheu o card
+    countSelectedProcCard++;
+    //emit para todos os jogadores não gerente que o player escolheu e está ok
+    io.emit('playerProcCardOK',idPlayer);
+    //funcao para verificar quem ainda falta para escolher, caso todos os jogadores escolheram,start next turn
+    var indexPlayer = playersIdArray.findIndex(element => element == idPlayer);//PROCURA O JOGADOR NO ARRAY
+    playersCardProcChoose1[indexPlayer] = cardsChooseArray[0];
+    console.log("jogadores que ja deram ok: "+countSelectedProcCard);
+    if(countSelectedProcCard == players.length-1) //-1 por conta do gerente
+    {
+      io.emit('startCompProcCards',playersCardProcChoose1,playersAvatarArray,playersNameArray);
+    }
+    
+  
+  });
+
 
 
   //client pedindo os players, quando o jogador entra, ele n sabe quem já está na mesa

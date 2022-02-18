@@ -23,7 +23,7 @@ class MyGame extends Phaser.Scene
 
 const config = {
     type: Phaser.AUTO,
-    parent: 'Jogo Usinagem - CNC (by Ludico)',
+    parent: 'Jogo Usinagem - CNC',
     width: 1900,
     height: 949,
     scene: [Game]

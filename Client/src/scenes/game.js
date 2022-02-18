@@ -41,7 +41,12 @@ export default class Game extends Phaser.Scene
         this.load.image('tabWait','src/assets/waitTab.png');
         this.load.image('playerInfoBox','src/assets/playerInfoBox.png');
         this.load.image('processSheet','src/assets/processSheet.png');
-
+        this.load.image('btnExpand','src/assets/expandIcon.png');
+        this.load.image('woodenBox','src/assets/woodenBox.png');
+        this.load.image('btnSim','src/assets/btnSim.png');
+        this.load.image('OKproc','src/assets/okCard.png');
+        this.load.image('playerInfoCard','src/assets/playerInfoBoxCard.png');
+        
         //avatares
         this.load.image('avatar0','src/assets/Avatars/avatar0.png'); 
         this.load.image('avatar1','src/assets/Avatars/avatar1.png'); 
@@ -72,8 +77,23 @@ export default class Game extends Phaser.Scene
         
         
         //frente processos
-
-
+        this.load.image('processo0','src/assets/Processos/1.png');
+        this.load.image('processo1','src/assets/Processos/2.png');
+        this.load.image('processo3','src/assets/Processos/4.png');
+        this.load.image('processo2','src/assets/Processos/3.png');
+        this.load.image('processo4','src/assets/Processos/5.png');
+        this.load.image('processo5','src/assets/Processos/6.png');
+        this.load.image('processo6','src/assets/Processos/7.png');
+        this.load.image('processo7','src/assets/Processos/8.png');
+        this.load.image('processo8','src/assets/Processos/9.png');
+        this.load.image('processo9','src/assets/Processos/10.png');
+        this.load.image('processo10','src/assets/Processos/11.png');
+        this.load.image('processo11','src/assets/Processos/12.png');
+        this.load.image('processo12','src/assets/Processos/13.png');
+        this.load.image('processo13','src/assets/Processos/14.png');
+        this.load.image('processo14','src/assets/Processos/15.png');
+        this.load.image('processo15','src/assets/Processos/16.png');
+        this.load.image('processo16','src/assets/Processos/16.png');
 
     }
 
@@ -90,12 +110,25 @@ export default class Game extends Phaser.Scene
       this.data.set('cardSelected',null);
 
       this.data.set('cardPecaTable',1);
-      this.data.set('cardPecaDeck',10);
+      this.data.set('cardPecaDeck',16);
       this.data.set('cursorHandFlag',false);
       this.data.set('tabPhotosFlag',-1);
       this.data.set('playerRole','X');
       this.data.set('dealCardsFlag',false);
+
+      //flag global da carta de processo na mesa
+      this.data.set('cardProcCount',0);
+      this.data.set('msgConfirmFlag',false);
+      //flag para a confirmação da carta de processo
+      this.data.set('cardProcEscolhidaFlag',false);
+      //cardsEscolhidos
+      this.data.set('cardProcChosen',null);
+
+
+      //flag para checagem das cartas de processo
+      this.data.set('compCardProcFlag',false);
       
+
       //cartas selecionadas  //// cartas escolhidas
       this.cardsSelected = [];
       this.cardChoose = null;
@@ -122,6 +155,8 @@ export default class Game extends Phaser.Scene
         //colocar visor
         this.visor = new Visor(this);
         this.visor.render(945,35,'visor',this);
+
+
     }
 
     shuffle(array){
@@ -148,17 +183,27 @@ export default class Game extends Phaser.Scene
     update() 
     {
       //----------TRIGGER-----------
-      if(this.data.get('choosenCardsFlag'))
+      if(this.data.get('choosenCardsFlag'))//gerente escolheu a peça, trigger para os projetistas
       {
         for(var i = 0;i<3;i++)
         {                      
            this.cardsPeca[i] = new CardPeca(this);
            this.cardsPeca[i].setIndex(this.data.get('cardsInTable')[i]);
-           this.cardsPeca[i].render(680+(i*260),230,'cardPeca',this,'shortcut');
+           this.cardsPeca[i].render(750+(i*260),230,'cardPeca',this,'shortcut','p');
            this.cardsPeca[i].flipFace();
-          if(this.data.get('cardSelected') == this.data.get('cardsInTable')[i])
+
+           if(this.data.get('cardsInTable')[i] != this.data.get('cardSelected'))
+           this.cardsPeca[i].notSelected();
+          
+          //if(this.data.get('cardSelected') == this.data.get('cardsInTable')[i])
 
         }
+        for(var i = 0;i<16;i++)  
+        {
+          this.cardsProc[i] = new CardProc(this);               
+          this.cardsProc[i].render(200+100*i,780,'cardProc',this,'shortcut',i);
+        }
+       
         this.data.set('choosenCardsFlag',false);
       }
 
@@ -168,7 +213,7 @@ export default class Game extends Phaser.Scene
         this.visor.nextTurn();
         this.player.blindPlayer();
         this.data.set('cursorHandFlag',false);
-        for(var i=0;i<10;i++)
+        for(var i=0;i<16;i++)
           if(!this.cardsPeca[i].inDeck)
           {
               if(!this.cardsPeca[i].inDeck)
@@ -176,7 +221,6 @@ export default class Game extends Phaser.Scene
               if(this.cardsPeca[i].isChoose)
                 this.cardChoose = this.cardsPeca[i].index;
           }
-
         this.player.managerChooseCard(this.cardsSelected,this.cardChoose);
       }
 
@@ -185,15 +229,15 @@ export default class Game extends Phaser.Scene
       if(this.data.get('playerRole') == 'g' && this.data.get('dealCardsFlag'))
       {
             //setBaralho de pecas
-            for(var i = 0;i<10;i++)
+            for(var i = 0;i<16;i++)
             {
               this.cardsPeca[i] = new CardPeca(this);
               this.cardsPeca[i].setIndex(i);
             }
             
             this.shuffle(this.cardsPeca);
-            for(var i = 0;i<10;i++)
-            this.cardsPeca[i].render(1350,350,'cardPeca',this,'shortcut');
+            for(var i = 0;i<16;i++)
+            this.cardsPeca[i].render(1350,350,'cardPeca',this,'shortcut','g');
 
             this.data.set('dealCardsFlag',false);
             
@@ -202,16 +246,71 @@ export default class Game extends Phaser.Scene
       if(this.data.get('playerRole') == 'p' && this.data.get('dealCardsFlag'))
       {
 
-          //dealCartas processos
-          for(var i = 0;i<10;i++)  
-          {
-            this.cardsProc[i] = new CardProc(this);               
-            this.cardsProc[i].render(500+100*i,780,'cardProc',this,'shortcut');
-          }
           console.log(this.visor);
           this.player.awaitManagerOn();
         this.data.set('dealCardsFlag',false);
       }
+
+
+
+
+      //----------TRIGGER----------- //mensagem de confirmação das cartas de processo
+      if(this.data.get('cardProcCount') == 1 && !this.data.get('msgConfirmFlag'))
+      {
+        //mostra caixa de confirmaçao na tela
+        this.processSheet.showConfirmMsg();
+        this.data.set('msgConfirmFlag',true);
+          
+      }
+      if(this.data.get('cardProcCount') < 1 && this.data.get('msgConfirmFlag'))
+      {
+        //tira caixa de confirmaçao na tela
+        this.processSheet.deleteConfirmMsg();
+        this.data.set('msgConfirmFlag',false);
+      }
+
+
+
+
+
+
+      //----------TRIGGER----------- //projetista coloca carta de processo na mesa
+      if(this.data.get('cardProcEscolhidaFlag'))
+      {
+        //inicia a animação de card
+        this.mesa.flipCardOverPlaymat(this.cardsProc);
+        this.processSheet.deleteConfirmMsg();
+        
+        this.data.set('cardProcEscolhidaFlag',false);
+      }
+
+      //----------TRIGGER-----------
+      if(this.data.get('cardProcChosen')!=null)
+      {     
+        this.player.playerChooseCard(this.data.get('cardProcChosen')); 
+        this.data.set('cardProcChosen',null);
+      }
+
+
+      //----------TRIGGER------- inicio da comparação de cartas de processo
+      if(this.data.get('compCardProcFlag'))
+      {     
+
+        //retirar folha de processo
+        this.processSheet.processSheetOff();        
+        //retirar cartas de processo
+        this.mesa.procCardsDestroy(this.cardsProc);        
+        //mudar visor
+        this.visor.nextTurn();
+        //retirar cartas de peca
+        this.mesa.pecaCardsDestroyProj(this.cardsPeca);
+        //retira ok dos players
+
+
+        this.data.set('compCardProcFlag',false);
+      }
+      
+   
 
     }
 

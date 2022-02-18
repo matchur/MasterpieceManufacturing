@@ -41,6 +41,7 @@ export default class TabInfo
             this.spr_tab = scene.add.sprite(x,y,'playerInfoTable').setScale(1,1).setInteractive();
             this.spr_prancheta = [];
             this.spr_playersPic = [];
+            this.spr_okIcon = [];
             this.playersId = [];
             this.playersAvatar = [];
             this.playersName = [];
@@ -78,6 +79,14 @@ export default class TabInfo
             }
         }   
 
+        //função de checkk da escolha da carta e icon de ok
+        this.playerProcCardSelected = (playerID) =>
+        {
+           var indexPlayer = this.playersId.findIndex(element => element == playerID);
+           this.spr_okIcon[indexPlayer] = this.scene.add.sprite(1614+(60*indexPlayer),120,'OKproc');        
+        }
+
+        
 
         //função bugada
         this.playerOff = (playerId) =>

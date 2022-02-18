@@ -9,7 +9,7 @@ export default class Player
 {
     constructor(scene)
     {       
-        var disc;//descrição do player
+        var disc;//descrição do player -- g - p
         var id;//id do jogador
         var name;//nome do jogador  
         var avatar;//avatar do jogador
@@ -108,10 +108,30 @@ export default class Player
                 }
             });
             
+            this.socket.on('playerProcCardOK', function(playerID)//socket para marcar quem ja deu OK
+            {                
+                // se n for o id dessa pessoa e n for gerente
+                if(self.id != playerID && self.disc != 'g')
+                    self.tabPlayers.playerProcCardSelected(playerID);
+            });
             
             this.socket.on('attPlayer', function(playerId,playerName,playerAvatar)
             {
                 self.tabPlayers.playerOn(playerId,playerName,playerAvatar);                         
+            });
+
+            this.socket.on('startCompProcCards', function(selectedProcCards,playersAvatar,playersName)
+            {
+
+
+                self.scene.data.set('compCardProcFlag',true);
+               
+
+
+                //fazer a animação
+
+
+                
             });
 
             this.socket.on('playerDisconnect', function(playersId)
@@ -151,6 +171,11 @@ export default class Player
         this.managerChooseCard = (cardsInTable,cardSelected) =>
         {
             this.socket.emit('managerChooseCard',cardsInTable,cardSelected);
+        }
+
+        this.playerChooseCard = (cardsChoose) =>
+        {
+            this.socket.emit('projChooseCard',cardsChoose,this.id);
         }
 
         this.setDisc = (disc) =>
